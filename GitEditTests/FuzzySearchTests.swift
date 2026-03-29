@@ -51,4 +51,30 @@ final class FuzzySearchTests: XCTestCase {
         let middleScore = search.score(query: "fs", candidate: "offset.swift")!
         XCTAssertGreaterThan(camelScore, middleScore)
     }
+
+    func testSearchEmptyCandidatesReturnsEmpty() {
+        let results = search.search(query: "readme", candidates: [])
+        XCTAssertTrue(results.isEmpty)
+    }
+
+    func testSearchNoMatchesReturnsEmpty() {
+        let candidates = ["alpha.swift", "beta.swift", "gamma.swift"]
+        let results = search.search(query: "zzz", candidates: candidates)
+        XCTAssertTrue(results.isEmpty)
+    }
+
+    func testSearchEmptyQueryReturnsAll() {
+        let candidates = ["a.swift", "b.swift", "c.swift"]
+        let results = search.search(query: "", candidates: candidates)
+        XCTAssertEqual(results.count, candidates.count)
+    }
+
+    func testSearchResultsAreSortedByScoreDescending() {
+        let candidates = ["readme.md", "src/readme_notes.txt", "z_readme_old.md"]
+        let results = search.search(query: "readme", candidates: candidates)
+        XCTAssertTrue(results.count >= 2)
+        for i in 0..<(results.count - 1) {
+            XCTAssertGreaterThanOrEqual(results[i].score, results[i + 1].score)
+        }
+    }
 }

@@ -97,4 +97,31 @@ final class CSVParserTests: XCTestCase {
         let doc = parser.parse(csv)
         XCTAssertEqual(doc.columnCount, 3)
     }
+
+    func testInferBooleanColumn() {
+        let csv = "active\ntrue\nfalse\nyes\nno\ntrue"
+        let doc = parser.parse(csv)
+        XCTAssertEqual(doc.columnTypes.first, .boolean)
+    }
+
+    func testRaggedRowsDoNotCrash() {
+        // Row with fewer columns than header — should not crash during type inference
+        let csv = "a,b,c\n1,2\n3,4,5"
+        let doc = parser.parse(csv)
+        XCTAssertEqual(doc.columnCount, 3)
+        XCTAssertEqual(doc.rowCount, 2)
+    }
+
+    func testTrailingNewlineDoesNotAddEmptyRow() {
+        let csv = "a,b\n1,2\n"
+        let doc = parser.parse(csv)
+        XCTAssertEqual(doc.rowCount, 1)
+    }
+
+    func testMixedTypesDefaultToText() {
+        // Column with mix of numbers and strings should infer as text
+        let csv = "val\n1\nhello\n2\nworld\n3"
+        let doc = parser.parse(csv)
+        XCTAssertEqual(doc.columnTypes.first, .text)
+    }
 }

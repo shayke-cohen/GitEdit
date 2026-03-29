@@ -23,6 +23,7 @@ struct SidebarView: View {
                             .foregroundStyle(.secondary)
                     }
                     .buttonStyle(.plain)
+                    .accessibilityLabel("Clear filter")
                 }
             }
             .padding(.horizontal, 12)
@@ -103,11 +104,12 @@ struct FileTreeRow: View {
 
             Spacer()
 
-            // Git status decoration
-            if let colorName = item.gitStatus.decorationColorName {
-                Circle()
-                    .fill(Color(colorName))
-                    .frame(width: 6, height: 6)
+            // Git status decoration — uses shape + color for accessibility (DES-001)
+            if let decoration = item.gitStatus.decoration {
+                Image(systemName: decoration.shape)
+                    .font(.system(size: 8, weight: .bold))
+                    .foregroundStyle(Color(decoration.color))
+                    .frame(width: 12, height: 12)
                     .accessibilityLabel("Git status: \(item.gitStatus.rawValue)")
             }
         }
@@ -123,6 +125,16 @@ struct FileTreeRow: View {
                     NSPasteboard.general.clearContents()
                     NSPasteboard.general.setString(relativePath, forType: .string)
                 }
+            }
+
+            Divider()
+
+            Button("Rename…") {
+                appState.renameTarget = item
+            }
+
+            Button("Delete", role: .destructive) {
+                appState.deleteTarget = item
             }
         }
     }

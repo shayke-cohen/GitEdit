@@ -187,6 +187,7 @@ struct TreeNodeRow: View {
                             .frame(width: 12)
                     }
                     .buttonStyle(.plain)
+                    .accessibilityLabel(node.isExpanded ? "Collapse" : "Expand")
                 } else {
                     Spacer().frame(width: 12)
                 }

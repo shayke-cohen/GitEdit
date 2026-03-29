@@ -11,6 +11,7 @@ struct CSVTableView: View {
     @State private var sortColumn: Int?
     @State private var sortAscending = true
     @State private var showRaw = false
+    @State private var filterQuery = ""
 
     private let parser = CSVParser()
 
@@ -35,9 +36,35 @@ struct CSVTableView: View {
     }
 
     private var csvToolbar: some View {
-        HStack {
+        HStack(spacing: 8) {
+            // DES-002: Filter bar
+            HStack(spacing: 4) {
+                Image(systemName: "magnifyingglass")
+                    .foregroundStyle(.secondary)
+                    .font(.system(size: 11))
+                TextField("Filter rows…", text: $filterQuery)
+                    .textFieldStyle(.plain)
+                    .font(.system(size: 12))
+                if !filterQuery.isEmpty {
+                    Button {
+                        filterQuery = ""
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundStyle(.secondary)
+                            .font(.system(size: 10))
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Clear filter")
+                }
+            }
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(.quaternary, in: RoundedRectangle(cornerRadius: 6))
+            .frame(maxWidth: 240)
+
             if let doc = document {
-                Text("\(doc.rowCount) rows × \(doc.columnCount) columns")
+                let displayCount = filteredRows(doc).count
+                Text("\(displayCount)/\(doc.rowCount) rows × \(doc.columnCount) cols")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -59,7 +86,7 @@ struct CSVTableView: View {
         ScrollView([.horizontal, .vertical]) {
             LazyVStack(spacing: 0, pinnedViews: [.sectionHeaders]) {
                 Section {
-                    ForEach(Array(sortedRows(doc).enumerated()), id: \.offset) { rowIndex, row in
+                    ForEach(Array(filteredAndSortedRows(doc).enumerated()), id: \.offset) { rowIndex, row in
                         HStack(spacing: 0) {
                             // Row number gutter
                             Text("\(rowIndex + 1)")
@@ -135,10 +162,19 @@ struct CSVTableView: View {
         .overlay(alignment: .bottom) { Divider() }
     }
 
-    private func sortedRows(_ doc: CSVDocument) -> [[String]] {
-        guard let col = sortColumn, col < doc.columnCount else { return doc.rows }
+    private func filteredRows(_ doc: CSVDocument) -> [[String]] {
+        guard !filterQuery.isEmpty else { return doc.rows }
+        let query = filterQuery.lowercased()
+        return doc.rows.filter { row in
+            row.contains { $0.lowercased().contains(query) }
+        }
+    }
 
-        return doc.rows.sorted { a, b in
+    private func filteredAndSortedRows(_ doc: CSVDocument) -> [[String]] {
+        let rows = filteredRows(doc)
+        guard let col = sortColumn, col < doc.columnCount else { return rows }
+
+        return rows.sorted { a, b in
             let va = col < a.count ? a[col] : ""
             let vb = col < b.count ? b[col] : ""
 

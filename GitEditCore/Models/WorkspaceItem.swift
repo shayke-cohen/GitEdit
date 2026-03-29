@@ -59,4 +59,15 @@ public enum GitFileStatus: String, Sendable {
         case .renamed: return "systemBlue"
         }
     }
+
+    /// Shape + color decoration for accessibility (DES-001: not color-only).
+    public var decoration: (shape: String, color: String)? {
+        switch self {
+        case .unmodified, .ignored: return nil
+        case .modified: return ("circle.fill", "systemOrange")
+        case .added, .untracked: return ("plus.circle.fill", "systemGreen")
+        case .deleted: return ("minus.circle", "systemRed")
+        case .renamed: return ("arrow.right.circle.fill", "systemBlue")
+        }
+    }
 }

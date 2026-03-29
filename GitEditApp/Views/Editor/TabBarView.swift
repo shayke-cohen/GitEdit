@@ -57,6 +57,7 @@ struct TabItem: View {
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .accessibilityLabel("Close tab")
             .opacity(isActive ? 1 : 0)
         }
         .padding(.horizontal, 12)

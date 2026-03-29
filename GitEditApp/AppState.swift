@@ -30,7 +30,10 @@ final class AppState: ObservableObject {
     @Published var showDiff: Bool = false
     @Published var showHistory: Bool = false
     @Published var showBlame: Bool = false
-    @Published var sidebarFilter: String = ""
+    // MARK: - File operations (DES-003)
+
+    @Published var renameTarget: WorkspaceItem?
+    @Published var deleteTarget: WorkspaceItem?
 
     // MARK: - Recent workspaces (persisted in UserDefaults)
 
@@ -139,6 +142,38 @@ final class AppState: ObservableObject {
 
         let bookmarks = recentWorkspaces.compactMap { try? $0.bookmarkData(options: .withSecurityScope) }
         UserDefaults.standard.set(bookmarks, forKey: "recentWorkspaces")
+    }
+
+    // MARK: - File operations
+
+    func renameFile(_ item: WorkspaceItem, to newName: String) {
+        let newURL = item.url.deletingLastPathComponent().appendingPathComponent(newName)
+        do {
+            try FileManager.default.moveItem(at: item.url, to: newURL)
+            // Close any open tab for the old URL
+            openTabs.removeAll { $0.url == item.url }
+            refreshFileTree()
+        } catch {
+            // TODO: Show error banner
+        }
+    }
+
+    func deleteFile(_ item: WorkspaceItem) {
+        do {
+            try FileManager.default.trashItem(at: item.url, resultingItemURL: nil)
+            openTabs.removeAll { $0.url == item.url }
+            if let id = activeTabID, !openTabs.contains(where: { $0.id == id }) {
+                activeTabID = openTabs.last?.id
+            }
+            refreshFileTree()
+        } catch {
+            // TODO: Show error banner
+        }
+    }
+
+    private func refreshFileTree() {
+        guard let root = workspaceURL else { return }
+        do { fileTree = try workspaceService.scanDirectory(at: root) } catch {}
     }
 
     // MARK: - File watching
