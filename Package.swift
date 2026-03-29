@@ -17,6 +17,12 @@ let package = Package(
             dependencies: [],
             path: "GitEditCore"
         ),
+        // macOS SwiftUI app
+        .executableTarget(
+            name: "GitEdit",
+            dependencies: ["GitEditCore"],
+            path: "GitEditApp"
+        ),
         // Unit tests for core logic
         .testTarget(
             name: "GitEditTests",

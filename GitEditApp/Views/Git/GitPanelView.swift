@@ -78,7 +78,7 @@ struct DiffPanelContent: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
 
                     ForEach(hunk.lines) { line in
-                        DiffLineRow(line: line)
+                        InlineDiffLineRow(line: line)
                     }
                 }
             }
@@ -108,7 +108,7 @@ struct DiffPanelContent: View {
     }
 }
 
-struct DiffLineRow: View {
+private struct InlineDiffLineRow: View {
     let line: DiffLine
 
     var body: some View {
@@ -170,14 +170,14 @@ struct HistoryPanelContent: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
             List(commits, selection: $selectedCommitID) { commit in
-                CommitRow(commit: commit)
+                InlineCommitRow(commit: commit)
             }
             .listStyle(.plain)
         }
     }
 }
 
-struct CommitRow: View {
+private struct InlineCommitRow: View {
     let commit: FileCommit
 
     var body: some View {
@@ -233,7 +233,7 @@ struct BlamePanelContent: View {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 0) {
                     ForEach(blameLines) { line in
-                        BlameLineRow(line: line)
+                        InlineBlameLineRow(line: line)
                     }
                 }
             }
@@ -241,7 +241,7 @@ struct BlamePanelContent: View {
     }
 }
 
-struct BlameLineRow: View {
+private struct InlineBlameLineRow: View {
     let line: BlameLine
     @State private var showPopover = false
 

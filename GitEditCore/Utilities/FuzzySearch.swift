@@ -72,4 +72,9 @@ public struct SearchResult: Identifiable, Sendable {
     public let id = UUID()
     public let path: String
     public let score: Int
+
+    public init(path: String, score: Int) {
+        self.path = path
+        self.score = score
+    }
 }

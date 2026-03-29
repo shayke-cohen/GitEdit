@@ -96,7 +96,7 @@ struct EnvEditorView: View {
                 Text(isRevealed ? value : "••••••••")
                     .font(.system(size: 13, design: .monospaced))
                     .foregroundStyle(isSensitive && !isRevealed ? .secondary : .primary)
-                    .textSelection(isRevealed ? .enabled : .disabled)
+                    .textSelection(.enabled)
                     .accessibilityLabel(isSensitive && !isRevealed ? "masked value" : value)
 
                 // Toggle visibility for sensitive values

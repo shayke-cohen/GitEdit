@@ -1,4 +1,5 @@
 import SwiftUI
+import GitEditCore
 
 /// Root view — three-column layout per design spec.
 /// Col 1: Sidebar (file tree), Col 2: Editor area, Col 3: Git panel (contextual).
@@ -120,13 +121,11 @@ struct ViewModePicker: View {
 
     var body: some View {
         Picker("View Mode", selection: $tab.viewMode) {
-            Text("Source").tag(ViewMode.source)
-            if tab.fileType == .markdown {
-                Text("Split").tag(ViewMode.split)
-            }
-            Text("Rendered").tag(ViewMode.rendered)
+            Text("Source").tag(ViewMode.source as ViewMode)
+            Text("Split").tag(ViewMode.split as ViewMode)
+            Text("Rendered").tag(ViewMode.rendered as ViewMode)
         }
         .pickerStyle(.segmented)
-        .frame(width: tab.fileType == .markdown ? 200 : 140)
+        .frame(width: tab.fileType == FileType.markdown ? 200 : 160)
     }
 }
