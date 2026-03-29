@@ -113,6 +113,7 @@ struct EnvEditorView: View {
                             .foregroundStyle(.secondary)
                     }
                     .buttonStyle(.plain)
+                    .accessibilityLabel(isRevealed ? "Hide value" : "Show value")
                     .help(isRevealed ? "Hide value" : "Show value")
                 }
 
