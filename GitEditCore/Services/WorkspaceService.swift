@@ -68,7 +68,7 @@ public final class WorkspaceService: Sendable {
 
     /// Check if a URL is within a git repository (has a .git directory ancestor).
     public func isInGitRepo(url: URL) -> Bool {
-        var current = url.deletingLastPathComponent()
+        var current = url
         while current.path != "/" {
             if FileManager.default.fileExists(atPath: current.appendingPathComponent(".git").path) {
                 return true
