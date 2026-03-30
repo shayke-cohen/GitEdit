@@ -34,6 +34,8 @@ final class AppState: ObservableObject {
     @Published var showDiff: Bool = false
     @Published var showHistory: Bool = false
     @Published var showBlame: Bool = false
+    @Published var lastError: String?
+
     // MARK: - File operations (DES-003)
 
     @Published var renameTarget: WorkspaceItem?
@@ -133,7 +135,7 @@ final class AppState: ObservableObject {
             try workspaceService.writeFile(content: tab.content, to: tab.url)
             tab.isModified = false
         } catch {
-            errorMessage = "Save failed: \(error.localizedDescription)"
+            lastError = "Save failed: \(error.localizedDescription)"
         }
     }
 
@@ -158,7 +160,7 @@ final class AppState: ObservableObject {
             openTabs.removeAll { $0.url == item.url }
             refreshFileTree()
         } catch {
-            errorMessage = "Rename failed: \(error.localizedDescription)"
+            lastError = "Rename failed: \(error.localizedDescription)"
         }
     }
 
@@ -171,7 +173,7 @@ final class AppState: ObservableObject {
             }
             refreshFileTree()
         } catch {
-            errorMessage = "Delete failed: \(error.localizedDescription)"
+            lastError = "Delete failed: \(error.localizedDescription)"
         }
     }
 

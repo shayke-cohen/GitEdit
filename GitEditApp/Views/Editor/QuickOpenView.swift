@@ -20,6 +20,7 @@ struct QuickOpenView: View {
                 TextField("Quick Open…", text: $query)
                     .textFieldStyle(.plain)
                     .font(.system(size: 16))
+                    .testID("quick-open-search")
                     .onSubmit { openSelected() }
             }
             .padding(.horizontal, 16)

@@ -14,17 +14,20 @@ struct StatusBarView: View {
                 Text(relativePath(for: tab))
                     .lineLimit(1)
                     .truncationMode(.middle)
+                    .testID("status-bar-path")
 
                 Spacer()
 
                 // Center: word count or cursor position
                 centerInfo(for: tab)
+                    .testID("status-bar-center-info")
 
                 Spacer()
 
                 // Right: file type | encoding | git modified count
                 HStack(spacing: 8) {
                     Text(tab.fileType.displayName)
+                        .testID("status-bar-filetype")
                     Text("UTF-8")
                         .foregroundStyle(.tertiary)
                 }
@@ -38,6 +41,7 @@ struct StatusBarView: View {
         .frame(height: 24)
         .background(.bar)
         .overlay(alignment: .top) { Divider() }
+        .testID("status-bar")
     }
 
     private func relativePath(for tab: EditorTab) -> String {
@@ -55,9 +59,9 @@ struct StatusBarView: View {
             let chars = content.count
             Text("\(words) words · \(chars) chars")
         case .table:
-            // Row count for CSV — use CSVParser for accurate count
-            let doc = CSVParser().parse(content)
-            Text("\(doc.rowCount) rows")
+            // Row count for CSV — use CSVParser for accurate count (fixes trailing newline bug)
+            let rows = CSVParser().parse(content).rowCount
+            Text("\(rows) rows")
         default:
             // Line count for everything else
             let lines = content.components(separatedBy: .newlines).count

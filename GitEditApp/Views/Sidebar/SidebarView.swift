@@ -28,6 +28,7 @@ struct SidebarView: View {
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
+            .testID("sidebar-filter")
 
             Divider()
 
@@ -41,6 +42,7 @@ struct SidebarView: View {
                     }
                 }
                 .listStyle(.sidebar)
+                .testID("file-tree")
             }
         }
     }
@@ -114,6 +116,7 @@ struct FileTreeRow: View {
             }
         }
         .padding(.vertical, 2)
+        .testID("file-row-\(item.name)")
         .contentShape(Rectangle())
         .contextMenu {
             Button("Reveal in Finder") {

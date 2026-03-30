@@ -4,9 +4,10 @@ import Foundation
 /// Notifies observers when files are created, modified, or deleted.
 public final class FileWatcher {
     private var stream: FSEventStreamRef?
-    private var callbackWrapper: CallbackWrapper?
+    private var contextInfo: UnsafeMutableRawPointer?
     private let path: String
     private let callback: ([String]) -> Void
+    private let queue = DispatchQueue(label: "com.gitedit.filewatcher", qos: .utility)
 
     public init(path: String, callback: @escaping ([String]) -> Void) {
         self.path = path
@@ -18,11 +19,15 @@ public final class FileWatcher {
     }
 
     public func start() {
+        // Stop any existing stream to prevent leaking the previous contextInfo
+        if stream != nil { stop() }
+
         let pathCF = path as CFString
-        let wrapper = CallbackWrapper(callback)
-        self.callbackWrapper = wrapper
+        let opaquePtr = Unmanaged.passRetained(CallbackWrapper(callback)).toOpaque()
+        self.contextInfo = opaquePtr
+
         var context = FSEventStreamContext()
-        context.info = Unmanaged.passUnretained(wrapper).toOpaque()
+        context.info = opaquePtr
 
         guard let stream = FSEventStreamCreate(
             nil,
@@ -35,7 +40,7 @@ public final class FileWatcher {
         ) else { return }
 
         self.stream = stream
-        FSEventStreamSetDispatchQueue(stream, DispatchQueue.main)
+        FSEventStreamSetDispatchQueue(stream, queue)
         FSEventStreamStart(stream)
     }
 
@@ -45,7 +50,12 @@ public final class FileWatcher {
         FSEventStreamInvalidate(stream)
         FSEventStreamRelease(stream)
         self.stream = nil
-        self.callbackWrapper = nil
+
+        // Balance the passRetained from start() to avoid memory leak
+        if let info = contextInfo {
+            Unmanaged<CallbackWrapper>.fromOpaque(info).release()
+            contextInfo = nil
+        }
     }
 }
 

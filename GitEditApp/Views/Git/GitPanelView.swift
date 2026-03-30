@@ -23,6 +23,7 @@ struct GitPanelView: View {
                 }
             }
             .pickerStyle(.segmented)
+            .testID("git-tab-picker")
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
 
@@ -40,6 +41,7 @@ struct GitPanelView: View {
         }
         .background(Color(nsColor: .controlBackgroundColor))
         .overlay(alignment: .leading) { Divider() }
+        .testID("git-panel-content")
     }
 }
 

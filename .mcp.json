@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "argus": {
+      "command": "npx",
+      "args": ["-y", "-p", "@wix/argus", "argus-mcp"]
+    },
+    "appxray": {
+      "command": "npx",
+      "args": ["-y", "@shaykec/appxray-mcp-server"],
+      "env": { "APPXRAY_AUTO_CONNECT": "true" }
+    }
+  }
+}

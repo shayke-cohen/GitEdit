@@ -147,8 +147,10 @@ final class EnvParserTests: XCTestCase {
     }
 
     func testNonSensitiveKeyWithSimilarSubstring() {
-        // "MONKEY_PATCH" should NOT be flagged — "KEY" must match a full underscore-delimited component
-        XCTAssertFalse(EnvParser.isSensitiveKey("MONKEY_PATCH"))
+        // Bug #4 fix: word-boundary matching prevents "MONKEY_PATCH" from being
+        // flagged as sensitive even though "MONKEY" contains "KEY" as a substring.
+        XCTAssertFalse(EnvParser.isSensitiveKey("MONKEY_PATCH"),
+            "MONKEY_PATCH must not be flagged sensitive — KEY inside MONKEY is not a word boundary match")
         XCTAssertFalse(EnvParser.isSensitiveKey("DONKEY_WORK"))
         // But "API_KEY" should still match
         XCTAssertTrue(EnvParser.isSensitiveKey("API_KEY"))

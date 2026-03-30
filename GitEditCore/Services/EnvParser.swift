@@ -50,11 +50,13 @@ public struct EnvParser: Sendable {
     }
 
     /// Check if a key name suggests it contains a secret value.
-    /// Matches: PASSWORD, SECRET, TOKEN, KEY, API_KEY, etc.
+    /// Matches whole words separated by underscores: PASSWORD, SECRET, TOKEN, KEY, API_KEY, etc.
+    /// Does NOT match substrings (MONKEY, TURKEY, AUTHOR are not sensitive).
     public static func isSensitiveKey(_ key: String) -> Bool {
-        let components = key.uppercased().components(separatedBy: "_")
-        let sensitivePatterns = ["PASSWORD", "SECRET", "TOKEN", "KEY", "PRIVATE", "CREDENTIAL", "AUTH"]
-        return sensitivePatterns.contains { pattern in components.contains(pattern) }
+        let upper = key.uppercased()
+        let words = Set(upper.split(separator: "_").map(String.init))
+        let sensitiveWords: Set<String> = ["PASSWORD", "SECRET", "TOKEN", "KEY", "PRIVATE", "CREDENTIAL", "AUTH"]
+        return !words.isDisjoint(with: sensitiveWords)
     }
 }
 

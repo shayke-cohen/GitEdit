@@ -1,18 +1,18 @@
 import Foundation
 
 /// Represents a file or directory in the workspace file tree.
-/// @unchecked Sendable: mutable state is isolated to @MainActor via @Published properties.
+@MainActor
 public final class WorkspaceItem: Identifiable, ObservableObject, @unchecked Sendable {
-    public let id: UUID
-    public let url: URL
-    public let name: String
-    public let isDirectory: Bool
-    public let fileType: FileType?
-    public let depth: Int
+    nonisolated public let id: UUID
+    nonisolated public let url: URL
+    nonisolated public let name: String
+    nonisolated public let isDirectory: Bool
+    nonisolated public let fileType: FileType?
+    nonisolated public let depth: Int
 
-    @MainActor @Published public var children: [WorkspaceItem]?
-    @MainActor @Published public var isExpanded: Bool
-    @MainActor @Published public var gitStatus: GitFileStatus
+    @Published public var children: [WorkspaceItem]?
+    @Published public var isExpanded: Bool
+    @Published public var gitStatus: GitFileStatus
 
     public init(
         url: URL,

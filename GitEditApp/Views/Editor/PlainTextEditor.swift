@@ -15,9 +15,11 @@ struct PlainTextEditor: View {
         HStack(spacing: 0) {
             if showLineNumbers {
                 lineNumberGutter
+                    .testID("line-number-gutter")
             }
 
             textEditor
+                .testID("text-editor")
         }
     }
 
