@@ -151,5 +151,8 @@ final class EnvParserTests: XCTestCase {
         // flagged as sensitive even though "MONKEY" contains "KEY" as a substring.
         XCTAssertFalse(EnvParser.isSensitiveKey("MONKEY_PATCH"),
             "MONKEY_PATCH must not be flagged sensitive — KEY inside MONKEY is not a word boundary match")
+        XCTAssertFalse(EnvParser.isSensitiveKey("DONKEY_WORK"))
+        // But "API_KEY" should still match
+        XCTAssertTrue(EnvParser.isSensitiveKey("API_KEY"))
     }
 }

@@ -22,6 +22,10 @@ final class AppState: ObservableObject {
         return openTabs.first { $0.id == id }
     }
 
+    // MARK: - Error handling
+
+    @Published var errorMessage: String?
+
     // MARK: - UI state
 
     @Published var showSidebar: Bool = true
