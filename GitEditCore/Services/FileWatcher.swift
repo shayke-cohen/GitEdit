@@ -4,6 +4,7 @@ import Foundation
 /// Notifies observers when files are created, modified, or deleted.
 public final class FileWatcher {
     private var stream: FSEventStreamRef?
+    private var callbackWrapper: CallbackWrapper?
     private let path: String
     private let callback: ([String]) -> Void
 
@@ -18,8 +19,10 @@ public final class FileWatcher {
 
     public func start() {
         let pathCF = path as CFString
+        let wrapper = CallbackWrapper(callback)
+        self.callbackWrapper = wrapper
         var context = FSEventStreamContext()
-        context.info = Unmanaged.passRetained(CallbackWrapper(callback)).toOpaque()
+        context.info = Unmanaged.passUnretained(wrapper).toOpaque()
 
         guard let stream = FSEventStreamCreate(
             nil,
@@ -32,7 +35,7 @@ public final class FileWatcher {
         ) else { return }
 
         self.stream = stream
-        FSEventStreamScheduleWithRunLoop(stream, CFRunLoopGetMain(), CFRunLoopMode.defaultMode.rawValue)
+        FSEventStreamSetDispatchQueue(stream, DispatchQueue.main)
         FSEventStreamStart(stream)
     }
 
@@ -42,6 +45,7 @@ public final class FileWatcher {
         FSEventStreamInvalidate(stream)
         FSEventStreamRelease(stream)
         self.stream = nil
+        self.callbackWrapper = nil
     }
 }
 

@@ -35,6 +35,14 @@ struct GitEditApp: App {
                 .onOpenURL { url in
                     appState.openWorkspace(url: url)
                 }
+                .alert("Error", isPresented: Binding(
+                    get: { appState.errorMessage != nil },
+                    set: { if !$0 { appState.errorMessage = nil } }
+                )) {
+                    Button("OK") { appState.errorMessage = nil }
+                } message: {
+                    Text(appState.errorMessage ?? "")
+                }
         }
         .windowStyle(.titleBar)
         .windowToolbarStyle(.unified(showsTitle: true))
