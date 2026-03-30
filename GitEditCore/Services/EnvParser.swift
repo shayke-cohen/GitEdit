@@ -52,9 +52,9 @@ public struct EnvParser: Sendable {
     /// Check if a key name suggests it contains a secret value.
     /// Matches: PASSWORD, SECRET, TOKEN, KEY, API_KEY, etc.
     public static func isSensitiveKey(_ key: String) -> Bool {
-        let upper = key.uppercased()
+        let components = key.uppercased().components(separatedBy: "_")
         let sensitivePatterns = ["PASSWORD", "SECRET", "TOKEN", "KEY", "PRIVATE", "CREDENTIAL", "AUTH"]
-        return sensitivePatterns.contains { upper.contains($0) }
+        return sensitivePatterns.contains { pattern in components.contains(pattern) }
     }
 }
 

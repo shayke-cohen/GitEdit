@@ -55,9 +55,9 @@ struct StatusBarView: View {
             let chars = content.count
             Text("\(words) words · \(chars) chars")
         case .table:
-            // Row count for CSV
-            let rows = content.components(separatedBy: .newlines).count - 1
-            Text("\(max(0, rows)) rows")
+            // Row count for CSV — use CSVParser for accurate count
+            let doc = CSVParser().parse(content)
+            Text("\(doc.rowCount) rows")
         default:
             // Line count for everything else
             let lines = content.components(separatedBy: .newlines).count

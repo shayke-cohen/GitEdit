@@ -22,6 +22,10 @@ final class AppState: ObservableObject {
         return openTabs.first { $0.id == id }
     }
 
+    // MARK: - Error handling
+
+    @Published var errorMessage: String?
+
     // MARK: - UI state
 
     @Published var showSidebar: Bool = true
@@ -129,7 +133,7 @@ final class AppState: ObservableObject {
             try workspaceService.writeFile(content: tab.content, to: tab.url)
             tab.isModified = false
         } catch {
-            // TODO: Show error banner
+            errorMessage = "Save failed: \(error.localizedDescription)"
         }
     }
 
@@ -154,7 +158,7 @@ final class AppState: ObservableObject {
             openTabs.removeAll { $0.url == item.url }
             refreshFileTree()
         } catch {
-            // TODO: Show error banner
+            errorMessage = "Rename failed: \(error.localizedDescription)"
         }
     }
 
@@ -167,7 +171,7 @@ final class AppState: ObservableObject {
             }
             refreshFileTree()
         } catch {
-            // TODO: Show error banner
+            errorMessage = "Delete failed: \(error.localizedDescription)"
         }
     }
 

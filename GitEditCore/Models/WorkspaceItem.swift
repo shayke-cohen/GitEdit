@@ -1,7 +1,8 @@
 import Foundation
 
 /// Represents a file or directory in the workspace file tree.
-public final class WorkspaceItem: Identifiable, ObservableObject, Sendable {
+/// @unchecked Sendable: mutable state is isolated to @MainActor via @Published properties.
+public final class WorkspaceItem: Identifiable, ObservableObject, @unchecked Sendable {
     public let id: UUID
     public let url: URL
     public let name: String

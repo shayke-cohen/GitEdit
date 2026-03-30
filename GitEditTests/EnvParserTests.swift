@@ -147,12 +147,10 @@ final class EnvParserTests: XCTestCase {
     }
 
     func testNonSensitiveKeyWithSimilarSubstring() {
-        // "MONKEY" does NOT contain any sensitive pattern — "KEY" is NOT a substring of "MONKEY"
-        // ... wait, "MONKEY".contains("KEY") → false — M-O-N-K-E-Y: no, KEY != KEY positionally
-        // Actually: "MONKEY".uppercased() = "MONKEY"; does it contain "KEY"? M-O-N-K-E-Y
-        // K-E-Y: positions 3,4,5 of MONKEY = K,E,Y → YES, MONKEY contains KEY!
-        // This is a known false-positive in the implementation. Test documents this behavior.
-        XCTAssertTrue(EnvParser.isSensitiveKey("MONKEY_PATCH"),
-            "Known behavior: 'MONKEY_PATCH' is flagged sensitive because it contains 'KEY'. Document this.")
+        // "MONKEY_PATCH" should NOT be flagged — "KEY" must match a full underscore-delimited component
+        XCTAssertFalse(EnvParser.isSensitiveKey("MONKEY_PATCH"))
+        XCTAssertFalse(EnvParser.isSensitiveKey("DONKEY_WORK"))
+        // But "API_KEY" should still match
+        XCTAssertTrue(EnvParser.isSensitiveKey("API_KEY"))
     }
 }
