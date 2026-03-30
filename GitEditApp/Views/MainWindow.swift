@@ -11,9 +11,39 @@ struct MainWindow: View {
             Group {
                 if appState.workspaceURL == nil {
                     WelcomeView()
+                        .testID("welcome-view")
                 } else {
                     workspaceView
                 }
+            }
+
+            // Error banner overlay
+            if let error = appState.lastError {
+                VStack {
+                    HStack {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundStyle(.yellow)
+                        Text(error)
+                            .lineLimit(2)
+                        Spacer()
+                        Button {
+                            appState.lastError = nil
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundStyle(.secondary)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                    .padding(10)
+                    .background(.red.opacity(0.15), in: RoundedRectangle(cornerRadius: 8))
+                    .padding(.horizontal, 20)
+                    .padding(.top, 8)
+                    .testID("error-banner")
+
+                    Spacer()
+                }
+                .transition(.move(edge: .top).combined(with: .opacity))
+                .animation(.easeInOut(duration: 0.25), value: appState.lastError)
             }
 
             // Quick Open overlay
@@ -24,6 +54,7 @@ struct MainWindow: View {
 
                 VStack {
                     QuickOpenView()
+                        .testID("quick-open-panel")
                         .padding(.top, 80)
                     Spacer()
                 }
@@ -37,14 +68,17 @@ struct MainWindow: View {
             columnVisibility: sidebarBinding,
             sidebar: {
                 SidebarView()
+                    .testID("sidebar")
                     .navigationSplitViewColumnWidth(min: 160, ideal: 220, max: 400)
             },
             detail: {
                 HSplitView {
                     editorArea
+                        .testID("editor-area")
 
                     if appState.showGitPanel {
                         GitPanelView()
+                            .testID("git-panel")
                             .frame(minWidth: 240, idealWidth: 300, maxWidth: 480)
                     }
                 }
@@ -94,6 +128,7 @@ struct MainWindow: View {
             } label: {
                 Label("Git Panel", systemImage: "arrow.triangle.branch")
             }
+            .testID("toggle-git-panel")
             .help("Toggle Git Panel (⇧⌘G)")
         }
     }
@@ -112,6 +147,7 @@ struct GitBranchBadge: View {
         .padding(.horizontal, 8)
         .padding(.vertical, 4)
         .background(.quaternary, in: RoundedRectangle(cornerRadius: 6))
+        .testID("git-branch-badge")
     }
 }
 
@@ -126,6 +162,7 @@ struct ViewModePicker: View {
             Text("Rendered").tag(ViewMode.rendered as ViewMode)
         }
         .pickerStyle(.segmented)
+        .testID("view-mode-picker")
         .frame(width: tab.fileType == FileType.markdown ? 200 : 160)
     }
 }

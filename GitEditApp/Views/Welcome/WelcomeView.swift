@@ -28,6 +28,7 @@ struct WelcomeView: View {
                     .font(.headline)
                     .frame(width: 200, height: 44)
             }
+            .testID("open-folder-button")
             .buttonStyle(.borderedProminent)
             .controlSize(.large)
             .keyboardShortcut("o", modifiers: .command)

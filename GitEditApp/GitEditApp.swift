@@ -1,14 +1,25 @@
 import SwiftUI
+#if DEBUG
+import AppXray
+#endif
 
 @main
 struct GitEditApp: App {
     @StateObject private var appState = AppState()
+
+    init() {
+        #if DEBUG
+        AppXray.shared.start(appName: "GitEdit")
+        #endif
+    }
 
     var body: some Scene {
         WindowGroup {
             MainWindow()
                 .environmentObject(appState)
                 .frame(minWidth: 960, minHeight: 600)
+                .onAppear { Self.registerAppXray(appState) }
+                .onAppear { Self.handleLaunchArgs(appState) }
                 .overlay {
                     if appState.showQuickOpen {
                         Color.black.opacity(0.2)
@@ -97,6 +108,52 @@ struct GitEditApp: App {
                 }
                 .keyboardShortcut("b", modifiers: [.command, .shift])
             }
+        }
+    }
+
+    @MainActor
+    private static func registerAppXray(_ appState: AppState) {
+        #if DEBUG
+        AppXray.shared.registerObservableObject(appState, name: "appState", setters: [
+            "showSidebar": { [weak appState] val in
+                DispatchQueue.main.async { appState?.showSidebar = val as! Bool }
+            },
+            "showGitPanel": { [weak appState] val in
+                DispatchQueue.main.async { appState?.showGitPanel = val as! Bool }
+            },
+            "showQuickOpen": { [weak appState] val in
+                DispatchQueue.main.async { appState?.showQuickOpen = val as! Bool }
+            },
+            "showDiff": { [weak appState] val in
+                DispatchQueue.main.async { appState?.showDiff = val as! Bool }
+            },
+            "showHistory": { [weak appState] val in
+                DispatchQueue.main.async { appState?.showHistory = val as! Bool }
+            },
+            "showBlame": { [weak appState] val in
+                DispatchQueue.main.async { appState?.showBlame = val as! Bool }
+            },
+            "lastError": { [weak appState] val in
+                DispatchQueue.main.async { appState?.lastError = val as? String }
+            },
+            "workspaceURL": { [weak appState] val in
+                DispatchQueue.main.async {
+                    if let path = val as? String {
+                        appState?.openWorkspace(url: URL(fileURLWithPath: path))
+                    }
+                }
+            },
+        ])
+        #endif
+    }
+
+    @MainActor
+    private static func handleLaunchArgs(_ appState: AppState) {
+        let args = ProcessInfo.processInfo.arguments
+        if let idx = args.firstIndex(of: "--open-path"), idx + 1 < args.count {
+            let path = args[idx + 1]
+            let url = URL(fileURLWithPath: path)
+            appState.openWorkspace(url: url)
         }
     }
 }

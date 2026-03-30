@@ -18,6 +18,7 @@ struct TabBarView: View {
         .overlay(alignment: .bottom) {
             Divider()
         }
+        .testID("tab-bar")
     }
 }
 
@@ -63,6 +64,7 @@ struct TabItem: View {
         .padding(.horizontal, 12)
         .padding(.vertical, 6)
         .background(isActive ? Color(nsColor: .controlBackgroundColor) : .clear)
+        .testID("tab-\(tab.name)")
         .contentShape(Rectangle())
         .onTapGesture {
             appState.activeTabID = tab.id
