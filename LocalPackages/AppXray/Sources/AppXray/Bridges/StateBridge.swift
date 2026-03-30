@@ -168,7 +168,7 @@ final class StateBridge: @unchecked Sendable {
         let segments = path.split(separator: ".")
         guard let firstKey = segments.first else { return .fail("Empty path") }
 
-        let publishedResult = setPublishedValue(value, key: String(firstKey), remainingPath: Array(segments.dropFirst()).map(String.init), on: obj)
+        let publishedResult = setPublishedValue(value, key: String(firstKey), remainingPath: Array(segments.dropFirst()).map(String.init), on: obj, storeName: storeName)
         if publishedResult {
             notifyObjectWillChange(obj)
             return .ok
@@ -186,7 +186,7 @@ final class StateBridge: @unchecked Sendable {
     }
 
     /// Set a value on a @Published property using Mirror to access the underlying storage.
-    private func setPublishedValue(_ value: Any, key: String, remainingPath: [String], on obj: Any) -> Bool {
+    private func setPublishedValue(_ value: Any, key: String, remainingPath: [String], on obj: Any, storeName: String? = nil) -> Bool {
         let mirror = Mirror(reflecting: obj)
         let publishedKey = "_\(key)"
 
@@ -195,7 +195,7 @@ final class StateBridge: @unchecked Sendable {
             guard String(describing: type(of: child.value)).hasPrefix("Published<") else { continue }
 
             if remainingPath.isEmpty {
-                return setPublishedStorage(child.value, newValue: value, key: publishedKey, on: obj)
+                return setPublishedStorage(child.value, newValue: value, key: publishedKey, on: obj, storeName: storeName)
             } else {
                 if let unwrapped = unwrapPublished(child.value) {
                     let nestedPath = remainingPath.joined(separator: ".")
@@ -208,10 +208,15 @@ final class StateBridge: @unchecked Sendable {
 
     /// Write to @Published storage.
     /// Priority: explicit setters > Combine Subject.send > NSObject KVC (safe types only) > ObjC runtime ivar.
-    private func setPublishedStorage(_ published: Any, newValue: Any, key: String, on obj: Any) -> Bool {
+    private func setPublishedStorage(_ published: Any, newValue: Any, key: String, on obj: Any, storeName: String? = nil) -> Bool {
         let objRef = obj as AnyObject
         let propertyName = String(key.dropFirst())
 
+        // Check namespaced key first (e.g. "appState.showSidebar"), then bare key
+        if let storeName = storeName, let setter = setters["\(storeName).\(propertyName)"] {
+            setter(newValue)
+            return true
+        }
         if let setter = setters[propertyName] {
             setter(newValue)
             return true
