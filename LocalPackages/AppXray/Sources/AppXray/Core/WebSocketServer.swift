@@ -378,12 +378,10 @@ final class WebSocketServer: @unchecked Sendable {
         }
     }
 
+    /// Called from handleJsonRpcMessage which already runs on `queue`,
+    /// so we access `handlers` directly (no queue.sync — that would deadlock).
     private func getHandler(_ method: String) -> (@Sendable ([String: Any]) async throws -> Any)? {
-        var handler: (@Sendable ([String: Any]) async throws -> Any)?
-        queue.sync {
-            handler = handlers[method]
-        }
-        return handler
+        return handlers[method]
     }
 
     private func sendResponse(_ connection: NWConnection, id: Any, result: Any) {
